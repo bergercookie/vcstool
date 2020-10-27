@@ -9,8 +9,20 @@ from vcstool.clients.git import GitClient  # noqa: E402
 from vcstool.util import rmtree  # noqa: E402
 
 REPOS_FILE = os.path.join(os.path.dirname(__file__), 'list.repos')
+# ensure CI uses the resource from the current branch
+if 'TRAVIS' in os.environ:
+    slug = os.environ.get('TRAVIS_PULL_REQUEST_SLUG')
+    branch = os.environ.get('TRAVIS_PULL_REQUEST_BRANCH')
+elif os.environ.get('GITHUB_REF', '').startswith('refs/heads/'):
+    # GitHub action
+    slug = os.environ.get('GITHUB_REPOSITORY')
+    branch = os.environ['GITHUB_REF'][11:]
+else:
+    slug = 'dirk-thomas/vcstool'
+    branch = 'master'
+
 REPOS_FILE_URL = \
-    'https://raw.githubusercontent.com/dirk-thomas/vcstool/master/test/list.repos'  # noqa: E501
+    'https://raw.githubusercontent.com/%s/%s/test/list.repos' % (slug, branch)  # noqa: E501
 REPOS2_FILE = os.path.join(os.path.dirname(__file__), 'list2.repos')
 TEST_WORKSPACE = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), 'test_workspace')
